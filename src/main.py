@@ -1,4 +1,5 @@
 import math
+import itertools
 import turtle
 
 class CosmicBodies(turtle.Turtle):
@@ -41,7 +42,12 @@ class Sun(CosmicBodies):
         self.color('orange')
 
 
-# class Planets(CosmicBodies):
+class Planets(CosmicBodies):
+    colors = itertools.cycle(["red", "green", "blue"])
+
+    def __init__(self, space, mass, position=(0, 0), velocity=(0, 0)):
+        super().__init__(space, mass, position, velocity)
+        self.color(next(Planets.colors))
 
 # Used to create the screen
 class Space:
@@ -52,7 +58,7 @@ class Space:
         self.space.tracer(0)
         self.space.setup(width, height)
         self.space.bgcolor('black')
-        # self.space.title('Space')
+        self.space.title('Space')
         self.bodies = []
 
     def add_body(self, body):
@@ -66,4 +72,25 @@ class Space:
             body.move()
             body.draw()
         self.space.update()
+    
+    @staticmethod
+    def calculate_path_with_g(first: CosmicBodies, second: CosmicBodies):
 
+        # if first.distance(second) == 0:
+
+
+        #F = m1*m1/(r^2)
+        force = first.mass * second.mass / first.distance(second) ** 2  
+        angle = first.towards(second) #finds angle between first and second
+
+        #Acceleration positive for first body
+        #negative for the other 
+        sign = 1      
+
+        for body in first, second:
+            acc = force / body.mass   #F=m/a
+            a_x = acc * math.cos(math.radians(angle))
+            a_y = acc * math.sin(math.radians(angle))
+
+            body.velocity = (body.velocity[0] + sign * a_x, body.velocity[1] + sign * a_y)
+            sign = -1
